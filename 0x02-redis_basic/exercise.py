@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+"""
+Writing strings to Redis
+"""
 import redis
 import uuid
 from typing import Union
@@ -7,6 +10,7 @@ from typing import Union
 
 class Cache:
     def __init__(self):
+        """Stores a value in Redis and returns the key. """
         self._redis = redis.Redis()
         self._redis.flushdb()
 
