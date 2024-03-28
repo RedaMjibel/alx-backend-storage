@@ -73,7 +73,7 @@ class Cache:
         return data_key
 
     def get(
-            self,
+            selfs,
             key: str,
             fn: Callable = None,
             ) -> Union[str, bytes, int, float]:
