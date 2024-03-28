@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-'''Redis NoSQL data storage module with method call tracking.'''
+""" Redis basic """
 import uuid
 import redis
 from functools import wraps
@@ -7,10 +7,10 @@ from typing import Any, Callable, Union
 
 
 def count_calls(method: Callable) -> Callable:
-    '''Decorator to count method calls in a Cache class.'''
+    """ Decorator to count method calls in a Cache class. """
     @wraps(method)
     def invoker(self, *args, **kwargs) -> Any:
-        '''Increments method call counter and invokes the original method.'''
+        """ Increments method call counter and invokes the original method."""
         if isinstance(self._redis, redis.Redis):
             self._redis.incr(method.__qualname__)
         return method(self, *args, **kwargs)
@@ -18,10 +18,10 @@ def count_calls(method: Callable) -> Callable:
 
 
 def call_history(method: Callable) -> Callable:
-    '''Decorator to track call details of methods in a Cache class.'''
+    """ Decorator to track call details of methods in a Cache class. """
     @wraps(method)
     def invoker(self, *args, **kwargs) -> Any:
-        '''Stores method inputs and outputs and returns the output.'''
+        """ Stores method inputs and outputs and returns the output. """
         in_key = '{}:inputs'.format(method.__qualname__)
         out_key = '{}:outputs'.format(method.__qualname__)
         if isinstance(self._redis, redis.Redis):
@@ -34,7 +34,7 @@ def call_history(method: Callable) -> Callable:
 
 
 def replay(fn: Callable) -> None:
-    '''replay function'''
+    """ replay function """
     if fn is None or not hasattr(fn, '__self__'):
         return
     redis_store = getattr(fn.__self__, '_redis', None)
@@ -58,9 +58,9 @@ def replay(fn: Callable) -> None:
 
 
 class Cache:
-    '''An object for storing data in Redis with call tracking.'''
+    """ An object for storing data in Redis with call tracking."""
     def __init__(self) -> None:
-        '''Initializes a Cache instance and flushes the Redis database.'''
+        """ Initializes a Cache instance and flushes the Redis database. """
         self._redis = redis.Redis()
         self._redis.flushdb(True)
 
@@ -77,14 +77,14 @@ class Cache:
             key: str,
             fn: Callable = None,
             ) -> Union[str, bytes, int, float]:
-        '''Retrieves a value from Redis with optional transformation.'''
+        """ Retrieves a value from Redis with optional transformation. """
         data = self._redis.get(key)
         return fn(data) if fn is not None else data
 
     def get_str(self, key: str) -> str:
-        '''Retrieves a string value from Redis.'''
+        """ Retrieves a string value from Redis. """
         return self.get(key, lambda x: x.decode('utf-8'))
 
     def get_int(self, key: str) -> int:
-        '''Retrieves an integer value from Redis.'''
+        """ Retrieves an integer value from Redis. """
         return self.get(key, lambda x: int(x))
